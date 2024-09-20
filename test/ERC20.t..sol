@@ -17,7 +17,7 @@ contract TokenTest is Test {
         vm.deal(User3, 1 ether);
     }
 
-    function test_Increment() public {
+    function test_Minting() public {
         uint256 amount = 2000 * 1e18;
         uint256 BalanceBeforeTransfer = token.balanceOf(address(this));
         uint256 BalanceShouldBe = BalanceBeforeTransfer + amount;
@@ -60,5 +60,10 @@ contract TokenTest is Test {
 
         assertEq(token.balanceOf(User3), amount);
         assertEq(token.allowance(address(this), User2), 0);
+    }
+
+    function test_TransferOwnership() public {
+        token.transferOwnership(User2);
+        assertEq(token.owner(), User2);
     }
 }
