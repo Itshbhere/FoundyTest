@@ -50,26 +50,6 @@ contract TokenTest is Test {
         assertEq(AllowanceCheck, amount);
     }
 
-    function test_Increment2() public {
-        uint256 initialBalance = token.balanceOf(address(this));
-        console.log("Initial balance:", initialBalance);
-
-        uint256 amount = 2000 * 1e18;
-        token.mint(address(this), amount);
-
-        uint256 balanceAfterMint = token.balanceOf(address(this));
-        console.log("Balance after mint:", balanceAfterMint);
-
-        uint256 expectedBalance = initialBalance + amount;
-        console.log("Expected balance:", expectedBalance);
-
-        assertEq(
-            balanceAfterMint,
-            expectedBalance,
-            "Balance after minting is incorrect"
-        );
-    }
-
     function test_TransferFromWithAllowance() public {
         uint256 amount = 1000 * 1e18;
         token.mint(address(this), amount);
