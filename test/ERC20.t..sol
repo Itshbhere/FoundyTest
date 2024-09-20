@@ -6,9 +6,13 @@ import {ERC20Test} from "../src/ERC20.sol";
 
 contract TokenTest is Test {
     ERC20Test public token; // Changed variable name to 'token' to match usage
+    address public User2;
 
     function setUp() public {
         token = new ERC20Test(); // Instantiate the correct contract
+        User2 = address(0x1);
+
+        vm.deal(User2, 1 ether);
     }
 
     function test_Increment() public {
@@ -24,5 +28,15 @@ contract TokenTest is Test {
         token.mint(msg.sender, amount);
         uint256 AfterMint = token.balanceOf(msg.sender);
         assertEq(AfterMint, BalanceChecker);
+    }
+
+    function test_sendingTokens() public {
+        uint256 amount = 1000 * 1e18;
+        token.mint(msg.sender, amount);
+        token.transfer(User2, amount);
+        vm.startPrank(User2);
+        uint256 BalanceOfUser2 = token.balanceOf(User2);
+        vm.stopPrank();
+        assertEq(BalanceOfUser2, amount);
     }
 }
