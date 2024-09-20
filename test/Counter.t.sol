@@ -2,14 +2,13 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {Counter} from "../src/Counter.sol";
+import {ERC20Test} from "../src/ERC20.sol";
 
-contract CounterTest is Test {
-    Counter public counter;
+contract TokenTest is Test {
+    ERC20Test public ERC20;
 
     function setUp() public {
-        counter = new Counter();
-        counter.setNumber(0);
+        token = new ERC20();
     }
 
     function test_Increment() public {
