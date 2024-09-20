@@ -5,38 +5,80 @@ import {Test, console} from "forge-std/Test.sol";
 import {ERC20Test} from "../src/ERC20.sol";
 
 contract TokenTest is Test {
-    ERC20Test public token; // Changed variable name to 'token' to match usage
+    ERC20Test public token;
     address public User2;
+    address public User3;
 
     function setUp() public {
-        token = new ERC20Test(); // Instantiate the correct contract
+        token = new ERC20Test();
         User2 = address(0x1);
-
+        User3 = address(0x2);
         vm.deal(User2, 1 ether);
+        vm.deal(User3, 1 ether);
     }
 
     function test_Increment() public {
-        uint256 amount = 2000 * 1e18; // Use 1e18 for proper ERC20 token units (assuming 18 decimals)
-        token.mint(msg.sender, amount); // Mint tokens to the sender
-        uint256 balanceAfterMint = token.balanceOf(msg.sender); // Get balance after minting
-        assertEq(balanceAfterMint, amount); // Assert the balance equals the minted amount
+        uint256 amount = 2000 * 1e18;
+        uint256 BalanceBeforeTransfer = token.balanceOf(address(this));
+        uint256 BalanceShouldBe = BalanceBeforeTransfer + amount;
+        token.mint(address(this), amount);
+        uint256 balanceAfterMint = token.balanceOf(address(this));
+        assertEq(balanceAfterMint, BalanceShouldBe);
     }
 
     function test_EnteringMoreToken() public {
         uint256 amount = 9999 * 1e18;
-        uint256 BalanceChecker = token.balanceOf(msg.sender) + amount;
-        token.mint(msg.sender, amount);
-        uint256 AfterMint = token.balanceOf(msg.sender);
+        uint256 BalanceChecker = token.balanceOf(address(this)) + amount;
+        token.mint(address(this), amount);
+        uint256 AfterMint = token.balanceOf(address(this));
         assertEq(AfterMint, BalanceChecker);
     }
 
     function test_sendingTokens() public {
         uint256 amount = 1000 * 1e18;
-        token.mint(msg.sender, amount);
+        token.mint(address(this), amount);
         token.transfer(User2, amount);
-        vm.startPrank(User2);
         uint256 BalanceOfUser2 = token.balanceOf(User2);
-        vm.stopPrank();
         assertEq(BalanceOfUser2, amount);
+    }
+
+    function test_AllowanceVerifier() public {
+        uint256 amount = 1000 * 1e18;
+        token.mint(address(this), amount);
+        token.approve(User2, amount);
+        uint256 AllowanceCheck = token.allowance(address(this), User2);
+        assertEq(AllowanceCheck, amount);
+    }
+
+    function test_Increment2() public {
+        uint256 initialBalance = token.balanceOf(address(this));
+        console.log("Initial balance:", initialBalance);
+
+        uint256 amount = 2000 * 1e18;
+        token.mint(address(this), amount);
+
+        uint256 balanceAfterMint = token.balanceOf(address(this));
+        console.log("Balance after mint:", balanceAfterMint);
+
+        uint256 expectedBalance = initialBalance + amount;
+        console.log("Expected balance:", expectedBalance);
+
+        assertEq(
+            balanceAfterMint,
+            expectedBalance,
+            "Balance after minting is incorrect"
+        );
+    }
+
+    function test_TransferFromWithAllowance() public {
+        uint256 amount = 1000 * 1e18;
+        token.mint(address(this), amount);
+        token.approve(User2, amount);
+
+        vm.prank(User2);
+        token.transferFrom(address(this), User3, amount);
+
+        assertEq(token.balanceOf(User3), amount);
+        assertEq(token.allowance(address(this), User2), 0);
     }
 }
